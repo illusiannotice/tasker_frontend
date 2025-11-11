@@ -35,7 +35,7 @@ const sections: Array<sectionInterface> = [
                 <AddButton/>
             </header>
             <div class=" p-3">
-                <TaskCard title="task" :state="false", />
+                <TaskCard title="task" :state="false" />
             </div>
         </div>
 

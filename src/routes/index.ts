@@ -4,15 +4,15 @@ import Register from "../pages/Register.vue";
 import Main from "../pages/Main.vue";
 
 const routes = [
-    { path: '/login', name: 'login', component: Login },
-    { path: '/register',  name: 'register', component: Register},
-    { path: '/', name: 'main', component: Main }
+    { path: '/login', component: Login },
+    { path: '/register', component: Register},
+    { path: '/home', component: Main }
 ]
 
-export const router = createRouter({
-  history: createWebHistory(), // Use HTML5 history mode
+const router = createRouter({
+  history: createWebHistory(),
   routes,
 });
 
-
+export default router;
 
