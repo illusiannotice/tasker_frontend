@@ -6,25 +6,19 @@ import type { User, LoginCredentials, RegisterLoginResponse, RegisterCredentials
 
 export const authStore = defineStore('auth',() => {
     const user = ref<User | null>(null);
-    const token = ref<string | null>(localStorage.getItem('auth_token'));
     const loading = ref<boolean>(false);
 
-    const isAuthenticated = computed<boolean>(() => !!token.value);
-    const userName = computed<string>(() => user.value?.name || '');
+    const isAuthenticated = computed<boolean>(() => !!user.value);
     
     const login = async (credentials: LoginCredentials) => {
         loading.value = true;
         
         try{
-            const response = await api.post<RegisterLoginResponse>('/login', credentials);
+            const response = await api.post<RegisterLoginResponse>('/login', credentials,{
+                withCredentials: true
+            });
 
-            token.value = response.data.token;
             user.value = response.data.user;
-            localStorage.setItem('auth_token', response.data.token);
-
-            if (api.defaults.headers.common) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-            }
             return response.data;
 
 
@@ -39,14 +33,11 @@ export const authStore = defineStore('auth',() => {
         loading.value = true;
         
         try{
-            const response = await api.post<RegisterLoginResponse>('/register', credentials);
+            const response = await api.post<RegisterLoginResponse>('/register', credentials, {
+                withCredentials: true
+            });
 
-            token.value = response.data.token;
             user.value = response.data.user;
-            localStorage.setItem('auth_token', response.data.token);
-            if (api.defaults.headers.common) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-            }
             return response.data;
 
         }catch(err: any){
@@ -57,39 +48,7 @@ export const authStore = defineStore('auth',() => {
         }
     };
 
-    const checkAuth = async () => {
-        if(!token.value){
-            return false;
-        }
 
-        try{
-            
-            if (api.defaults.headers.common) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
-            }
-
-            const response = await api.get<User>('/getUser');
-
-            user.value = response.data;
-            return true;
-
-
-        }catch(err){
-
-            localStorage.removeItem('auth_token');
-            
-            token.value = null;
-            user.value = null;
-
-            if (api.defaults.headers.common) {
-                delete api.defaults.headers.common['Authorization'];
-            }
-
-            return false;
-
-        }
-
-    };
     const logout = async () => {
 
         try {
@@ -101,15 +60,20 @@ export const authStore = defineStore('auth',() => {
             console.error('Logout error:', error);
         
         } finally {
-            token.value = null;
             user.value = null;
-            localStorage.removeItem('auth_token');
       
-            if (api.defaults.headers.common) {
-                delete api.defaults.headers.common['Authorization'];
-            }
         }
     }
+    return {  
+        
+        user,
+        loading,
+        isAuthenticated,
+        login,
+        register,
+        logout
+    
+    };
 });
 
 
