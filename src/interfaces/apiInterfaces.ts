@@ -12,7 +12,7 @@ export interface LoginCredentials {
 
 export interface RegisterLoginResponse {
   user: User;
-  token: string;
+  msg: string;
 }
 
 export interface AuthState {

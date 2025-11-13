@@ -1,4 +1,37 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { authStore } from '../stores/authStore';
+import type { LoginCredentials } from '../interfaces/apiInterfaces';
+import type { Ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const store = authStore();
+const router = useRouter();
+const form: Ref<LoginCredentials> = ref({
+    email: '',
+    password: ''
+})
+
+const loginHandler = async () => {
+
+    try {
+        await store.login(form.value);
+        router.push("/home");
+    } catch (error) {
+        console.log("failed", error);
+    }
+
+};
+
+onMounted( async () => {
+    try {
+        await store.fetchUser;
+    } catch (error) {
+        
+    }
+});
+
+</script>
 
 <template>    
     <div class="login w-[100vw] h-[100vh]">
@@ -10,10 +43,10 @@
             <div class="grid w-[100%] place-items-center gap-y-4">
                 <strong class="title text-[3rem] text-[#191919]">Login</strong>    
                 <div class="grid w-[50%]">    
-                    <input class="m-1 w-[100%] p-3 bg-[#212121] rounded-full border-gray-600 border-solid border caret-white" type="email" placeholder="email">
-                    <input class="m-1 w-[100%] p-3 bg-[#212121] rounded-full border-gray-600 border-solid border caret-white" type="password" placeholder="password">
+                    <input v-model="form.email" class="m-1 w-[100%] p-3 bg-[#212121] rounded-full border-gray-600 border-solid border caret-white" type="email" placeholder="email">
+                    <input v-model="form.password" class="m-1 w-[100%] p-3 bg-[#212121] rounded-full border-gray-600 border-solid border caret-white" type="password" placeholder="password">
                 </div>
-                <button>Login</button>
+                <button @click="loginHandler">{{ store.loading ? 'Logging in' : 'Login' }}</button>
             </div>
         </div>
     </div>

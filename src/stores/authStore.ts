@@ -31,16 +31,17 @@ export const authStore = defineStore('auth',() => {
     };
     const register = async (credentials: RegisterCredentials) => {
         loading.value = true;
-        
-        try{
-            const response = await api.post<RegisterLoginResponse>('/register', credentials, {
+        const response = await api.post<RegisterLoginResponse>('/register', credentials, {
                 withCredentials: true
             });
+        try{
+            
 
             user.value = response.data.user;
             return response.data;
 
         }catch(err: any){
+            console.log(response)
             const error = err.response?.data?.error || "Registration Failed";
             throw new Error(error);
         }finally{
@@ -64,6 +65,24 @@ export const authStore = defineStore('auth',() => {
       
         }
     }
+    
+    const fetchUser = async () => {
+        
+    try {
+        const response = await api.get('get_user');
+        user.value = response.data.user;
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        return response.data;
+
+    
+    } catch (error) {
+        user.value=null
+        localStorage.removeItem('user');
+        throw error;
+    }
+
+
+    };
     return {  
         
         user,
@@ -71,7 +90,8 @@ export const authStore = defineStore('auth',() => {
         isAuthenticated,
         login,
         register,
-        logout
+        logout,
+        fetchUser
     
     };
 });
