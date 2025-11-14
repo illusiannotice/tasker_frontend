@@ -20,7 +20,7 @@ const routes = [
   { 
     path: "/home",
     component: Main,
-    meta: { requiresAuth: false } 
+    meta: { requiresAuth: true } 
   },
 ];
 
@@ -42,9 +42,8 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresAuth && !store.isAuthenticated) {
     next("/login");
-  } else if (to.meta.requiresGuest && store.isAuthenticated) {
-    next("/home");
-  } else {
+  }
+  else {
     next();
   }
 });
