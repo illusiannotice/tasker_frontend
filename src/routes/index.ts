@@ -31,7 +31,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const store = authStore();
-
+  console.log(store.isAuthenticated);
+  console.log(store.user);
   if (!store.user && !store.loading) {
     try {
       await store.fetchUser();
