@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import TaskCard from "../components/TaskCard.vue";
+import Directory from "../components/Directory.vue";
+import type { DirectoryRequests, DirectoryResponse } from "../interfaces/apiInterfaces.ts";
+import { get_directories, make_directory } from "../tools/apiCallFunctions";
+import { onMounted, ref, toRaw } from "vue";
 import AddButton from "../components/AddButton.vue";
 import SectionComponent from "../components/SectionComponent.vue";
-import { type sectionInterface } from "@/interfaces/sectionInterface";
+import { type sectionInterface } from "../interfaces/sectionInterface";
+import type { Ref } from "vue";
 const sections: Array<sectionInterface> = [
     {
         title : "main",
@@ -16,7 +20,52 @@ const sections: Array<sectionInterface> = [
         title: 'log out',
         path: 'src/assets/icons/Log-out.svg'
     }
-] 
+]
+const is_root = ref(true);
+localStorage.setItem('curr_path', '/');
+localStorage.setItem('previous_path', '/');
+const directories  = ref({
+    directories: [] as Array<DirectoryResponse>
+});
+const directory_config:Ref<DirectoryRequests> = ref({
+    name: ref(''),
+    path: localStorage.getItem('curr_path'),
+});
+const make_directory_handler = async (request: DirectoryRequests) => {
+    try {
+        const response = await make_directory(request);
+        directories.value.directories.push(response.data.directory);
+    } catch (error) {
+        console.log("failed to make directory", error);
+    }
+}
+const get_directories_handler = async (request: DirectoryRequests) => {
+    try {
+        const response = await get_directories(request);
+        directories.value.directories = response.data.directories;
+    } catch (error) {
+        console.log("failed to get directories", error);
+    }
+}
+const handle_dir_click = (directory_name: string) => {
+    try {
+        is_root.value = false;  
+        localStorage.setItem('previous_path', localStorage.getItem('curr_path')!);
+        localStorage.setItem('curr_path', localStorage.getItem('curr_path') + directory_name + '/');
+        console.log(localStorage.getItem('curr_path'));
+        directory_config.value.path = localStorage.getItem('curr_path');
+        get_directories_handler({name: directory_name, path: directory_config.value.path!});
+    } catch (error) {
+        throw error;   
+    }
+}
+onMounted( async () => {
+
+    await get_directories_handler({
+        name:'root',
+        path:'/'
+    });
+});
 
 
 </script>
@@ -32,10 +81,19 @@ const sections: Array<sectionInterface> = [
         </div>
         <div class="">
             <header class=" flex justify-between items-center p-2 bg-[#2C2C2C]">
-                <AddButton/>
+                <button v-if="!is_root">back</button>
+                <div class="flex items-center">
+                    <span class=" m-1">add directory:</span>
+                    <AddButton @click="make_directory_handler(directory_config)"/>
+                    <input type="text" v-model="directory_config.name" class=" ml-2 p-1 rounded-md text-white" />
+                </div>
+                <div class="flex items-center">
+                    <span class=" m-1">add file:</span>
+                    <AddButton/>
+                </div>
             </header>
-            <div class=" p-3">
-                <TaskCard title="task" :state="false" />
+            <div class="desktop p-3">
+                <Directory @click="handle_dir_click(directory.name)" v-for="directory in directories.directories" :name="directory.name"/>
             </div>
         </div>
 
@@ -66,5 +124,11 @@ const sections: Array<sectionInterface> = [
     }   
     h1{
         font-family: 'jetbrainsExtraBold';
+    }
+    .desktop{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        place-items: center;
     }
 </style>

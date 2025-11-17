@@ -27,3 +27,20 @@ export interface RegisterCredentials{
     password: string;
     password_repetition: string;
 }
+
+
+
+
+export interface DirectoryRequests{
+    name: string;
+    path: string;
+}
+export interface DirectoryResponse{
+    id: number;
+    name: string;
+    path: string;
+}
+export interface FileRequest{
+
+
+}

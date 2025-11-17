@@ -19,6 +19,7 @@ export const authStore = defineStore('auth',() => {
             });
 
             user.value = response.data.user;
+            localStorage.setItem('curr_path', '/');
             return response.data;
 
 
