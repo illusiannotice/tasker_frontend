@@ -57,6 +57,7 @@ export const authStore = defineStore('auth',() => {
             
             await api.post('/logout');
             
+            
         } catch (error: any) {
 
             console.error('Logout error:', error);

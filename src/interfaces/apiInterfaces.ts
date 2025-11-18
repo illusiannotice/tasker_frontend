@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   email_verified_at?: string;
+  is_admin: boolean;
 }
 
 export interface LoginCredentials {
@@ -33,14 +34,26 @@ export interface RegisterCredentials{
 
 export interface DirectoryRequests{
     name: string;
-    path: string;
+    path: string | null;
 }
 export interface DirectoryResponse{
-    id: number;
     name: string;
     path: string;
+    user_id: number;
 }
 export interface FileRequest{
+    name: string;
+    path: string | null;
+}
 
+export interface FileResponse{
+    name: string;
+    
+}
 
+export interface AdminRequest{
+    user_id: number;
+    path: string | null;
+    dir_name: string | null;
+    name: string | null;
 }
